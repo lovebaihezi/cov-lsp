@@ -1,11 +1,9 @@
 use std::collections::HashMap;
 
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 use dashmap::DashMap;
-use nrs_language_server::chumsky::{parse, type_inference, Func, ImCompleteSemanticToken};
-use nrs_language_server::completion::completion;
-use nrs_language_server::jump_definition::get_definition;
-use nrs_language_server::reference::get_reference;
-use nrs_language_server::semantic_token::{semantic_token_from_ast, LEGEND_TYPE};
 use ropey::Rope;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -40,7 +38,7 @@ impl LanguageServer for Backend {
                     completion_item: None,
                 }),
                 execute_command_provider: Some(ExecuteCommandOptions {
-                    commands: vec!["dummy.do_something".to_string()],
+                    commands: vec!["coverage.show".to_string()],
                     work_done_progress_options: Default::default(),
                 }),
 
@@ -57,7 +55,7 @@ impl LanguageServer for Backend {
                             text_document_registration_options: {
                                 TextDocumentRegistrationOptions {
                                     document_selector: Some(vec![DocumentFilter {
-                                        language: Some("nrs".to_string()),
+                                        language: Some("cpp".to_string()),
                                         scheme: Some("file".to_string()),
                                         pattern: None,
                                     }]),
@@ -561,7 +559,6 @@ async fn main() {
     })
     .finish();
 
-    serde_json::json!({"test": 20});
     Server::new(stdin, stdout, socket).serve(service).await;
 }
 
